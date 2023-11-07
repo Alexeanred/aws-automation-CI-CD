@@ -97,7 +97,7 @@ Resources:
           - Name: AWS_ECR_REPOSITORY_URI
             Value: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${EcrRepository}'
           - Name: IMAGE_REPO_NAME
-            Value: !Ref GithubRepository
+            Value: "demo-cfn"
           - Name: IMAGE_TAG
             Value: "latest"
         Image: "aws/codebuild/standard:5.0"
@@ -111,7 +111,7 @@ Resources:
   EcrRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Ref GithubRepository
+      RepositoryName: "demo-cfn"
 
   PipelineRole:
     Type: AWS::IAM::Role
