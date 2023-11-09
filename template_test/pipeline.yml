@@ -134,50 +134,85 @@ Resources:
     Type: AWS::ECR::Repository
     Properties:
       RepositoryName: "demo-cfn"
-
   PipelineRole:
     Type: AWS::IAM::Role
     Properties:
+      Path: /
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: 2012-10-17
         Statement:
           - Effect: Allow
             Principal:
               Service: codepipeline.amazonaws.com
-            Action:
-              - "sts:AssumeRole"
+            Action: sts:AssumeRole
       Policies:
-        - PolicyName: "GetAndPutArtifacts"
+        - PolicyName: root
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: 2012-10-17
             Statement:
-              - Effect: "Allow"
+              - Resource:
+                  - !Sub arn:aws:s3:::${ArtifactBucket}/*
+                Effect: Allow
                 Action:
-                  - s3:GetObject
                   - s3:PutObject
-                  - s3:ListBucket
-                Resource:
-                  - !GetAtt ArtifactBucket.Arn
-                  - !Sub ${ArtifactBucket.Arn}/*
-        - PolicyName: "StartCodeBuild"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: "Allow"
-                Action:
-                  - codebuild:StartBuild
-                  - codebuild:BatchGetBuilds
-                Resource:
-                  - !GetAtt CodeBuildProject.Arn
-        - PolicyName: "AllowECS-ECR"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketVersioning
               - Resource: "*"
                 Effect: Allow
                 Action:
-                  - 'ecs:*'
-                  - 'ecr:*'
+                  - ecs:DescribeServices
+                  - ecs:DescribeTaskDefinition
+                  - ecs:DescribeTasks
+                  - ecs:ListTasks
+                  - ecs:RegisterTaskDefinition
+                  - ecs:UpdateService
+                  - codebuild:StartBuild
+                  - codebuild:BatchGetBuilds
+                  - iam:PassRole
+  # PipelineRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     AssumeRolePolicyDocument:
+  #       Version: "2012-10-17"
+  #       Statement:
+  #         - Effect: Allow
+  #           Principal:
+  #             Service: codepipeline.amazonaws.com
+  #           Action:
+  #             - "sts:AssumeRole"
+  #     Policies:
+  #       - PolicyName: "GetAndPutArtifacts"
+  #         PolicyDocument:
+  #           Version: "2012-10-17"
+  #           Statement:
+  #             - Effect: "Allow"
+  #               Action:
+  #                 - s3:GetObject
+  #                 - s3:PutObject
+  #                 - s3:ListBucket
+  #               Resource:
+  #                 - !GetAtt ArtifactBucket.Arn
+  #                 - !Sub ${ArtifactBucket.Arn}/*
+  #       - PolicyName: "StartCodeBuild"
+  #         PolicyDocument:
+  #           Version: "2012-10-17"
+  #           Statement:
+  #             - Effect: "Allow"
+  #               Action:
+  #                 - codebuild:StartBuild
+  #                 - codebuild:BatchGetBuilds
+  #               Resource:
+  #                 - !GetAtt CodeBuildProject.Arn
+  #       - PolicyName: "AllowECS-ECR"
+  #         PolicyDocument:
+  #           Version: "2012-10-17"
+  #           Statement:
+  #             - Resource: "*"
+  #               Effect: Allow
+  #               Action:
+  #                 - 'ecs:*'
+  #                 - 'ecr:*'
          
   CodeBuildRole:
     Type: AWS::IAM::Role
