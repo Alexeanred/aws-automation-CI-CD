@@ -96,7 +96,8 @@ Resources:
                 Provider: ECS
               Configuration:
                 ClusterName: !Ref Cluster
-                ServiceName: !Ref Service   
+                ServiceName: !Ref Service
+                FileName: imagedefinitions.json   
               InputArtifacts:
                 - Name: BuildOutput                     
     DependsOn: EcrRepository
