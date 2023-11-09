@@ -1,5 +1,8 @@
 version: 0.2
-
+env:
+  secrets-manager:
+    DOCKERHUB_PASSWORD: "Anynomous100@"
+    DOCKERHUB_USERNAME: "tiennd124"
 phases:
   pre_build:
     commands:
