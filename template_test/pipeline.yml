@@ -15,6 +15,12 @@ Parameters:
   GithubRepository:
     Type: String
     Description: "Github repository name"
+  Cluster:
+    Type: String
+    Description: "Cluster Name"
+  Service:
+    Type: String
+    Description: "Service Name"
 
 Mappings:
   CodeBuildComputeTypeMap:
@@ -78,6 +84,21 @@ Resources:
                 - Name: SourceCode
               Configuration:
                 ProjectName: !Ref CodeBuildProject
+              OutputArtifacts:
+                - Name: BuildOutput
+        - Name: Deploy
+          Actions:
+            - Name: Deploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: "1"
+                Provider: ECS
+              Configuration:
+                ClusterName: !Ref Cluster
+                ServiceName: !Ref Service   
+              InputArtifacts:
+                - Name: BuildOutput                     
     DependsOn: EcrRepository
 
   CodeBuildProject:
@@ -202,3 +223,18 @@ Resources:
 
   ArtifactBucket:
     Type: AWS::S3::Bucket
+
+Outputs:
+  ECRImageUri:
+    Description: URI of the ECR image
+    Value:
+      Fn::Sub:
+        - "${RepositoryUriName}:${ImageTag}"
+        - RepositoryUriName:
+            Fn::GetAtt:
+              - EcrRepository
+              - RepositoryUri
+          ImageTag: latest
+
+  PipelineUrl:
+    Value: !Sub "https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${Pipeline}"

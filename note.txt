@@ -1,0 +1,36 @@
+EcsSecurityGroupIngressFromPublicALB
+PublicLoadBalancerSG  lb sg (xong)
+PublicLoadBalancer lb (xong)
+DummyTargetGroupPublic tg (xong)
+PublicLoadBalancerListener lb listener (xong)
+
+
+Cluster (xong)
+TaskDefinition ()
+ExecutionRole
+TaskRole
+ContainerSecurityGroup
+Service
+LogGroup
+
+
+Params:
+-VPC
+-Subnets
+
+Resources:
+-PublicLoadBalancerSG: *
+-PublicLoadBalancer: *
+-DummyTargetGroupPublic: *
+-PublicLoadBalancerListener: *
+-Cluster  *
+-TaskDefinition *
+-Service: *
+-ExecutionRole: * (check)
+-TaskRole: * (check)
+-LogGroup: *
+-ContainerSecurityGroup: *
+-AutoScalingRole 
+-DNSRecord
+-AutoScalingTarget:
+-AutoScalingPolicy:

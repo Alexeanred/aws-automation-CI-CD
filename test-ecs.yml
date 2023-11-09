@@ -1,0 +1,101 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: An example CloudFormation template for Fargate.
+Parameters:
+  VPC:
+    Type: AWS::EC2::VPC::Id
+  SubnetA:
+    Type: AWS::EC2::Subnet::Id
+  SubnetB:
+    Type: AWS::EC2::Subnet::Id
+  Image:
+    Type: String
+    # Update with the Docker image. "You can use images in the Docker Hub registry or specify other repositories (repository-url/image:tag)."
+    Default: 123456789012.dkr.ecr.region.amazonaws.com/image:tag
+Resources:
+  Cluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: 'demo-ecs-cfn'
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    DependsOn: LogGroup
+    Properties:
+      Family: 'demo-ecs-cfn-taskdef'
+      # awsvpc is required for Fargate
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: 256
+      Memory: 0.5GB
+      ExecutionRoleArn: !Ref ExecutionRole
+      TaskRoleArn: !Ref TaskRole
+      ContainerDefinitions:
+        - Name: 'simple-app'
+          Image: !Ref Image
+          PortMappings:
+            - ContainerPort: 8080
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-region: !Ref AWS::Region
+              awslogs-group: !Ref LogGroup
+              awslogs-stream-prefix: ecs
+  ExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: 'DemoECSExecutionRole'
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy'
+
+  TaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: 'DemoECSTaskRole'
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: 'sts:AssumeRole'
+  Service:
+    Type: AWS::ECS::Service
+    Properties: 
+    ServiceName: 'demo-ecs-cfn-service'
+    Cluster: !Ref Cluster
+    TaskDefinition: !Ref TaskDefinition
+    DeploymentConfiguration:
+      MinimumHealthyPercent: 100
+      MaximumPercent: 200
+    DesiredCount: 2
+    # This may need to be adjusted if the container takes a while to start up
+    HealthCheckGracePeriodSeconds: 30
+    LaunchType: FARGATE
+    NetworkConfiguration: 
+      AwsvpcConfiguration:
+        # change to DISABLED if you're using private subnets that have access to a NAT gateway
+        AssignPublicIp: ENABLED
+        Subnets:
+          - !Ref SubnetA
+          - !Ref SubnetB
+        SecurityGroups:
+          - !Ref ContainerSecurityGroup
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: 'demo-ecs-cfn-log-group'
+  ContainerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: 'ContainerSG-group'
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup
