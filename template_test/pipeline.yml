@@ -169,7 +169,26 @@ Resources:
                   - codebuild:BatchGetBuilds
                 Resource:
                   - !GetAtt CodeBuildProject.Arn
-
+        - PolicyName: "AllowECS-ECR"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Resource: "*"
+                Effect: Allow
+                Action:
+                  - ecs:DescribeServices
+                  - ecs:DescribeTaskDefinition
+                  - ecs:DescribeTasks
+                  - ecs:ListTasks
+                  - ecs:RegisterTaskDefinition
+                  - ecs:UpdateService   
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:PutImage
+                  - ecr:InitiateLayerUpload
+                  - ecr:UploadLayerPart
+                  - ecr:CompleteLayerUpload                
   CodeBuildRole:
     Type: AWS::IAM::Role
     Properties:
