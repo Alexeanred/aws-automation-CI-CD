@@ -19,17 +19,17 @@ Params:
 -Subnets
 
 Resources:
--PublicLoadBalancerSG: *
--PublicLoadBalancer: *
--DummyTargetGroupPublic: *
--PublicLoadBalancerListener: *
--Cluster  *
--TaskDefinition *
+-PublicLoadBalancerSG: * 1
+-PublicLoadBalancer: *  1
+-DummyTargetGroupPublic: * 1
+-PublicLoadBalancerListener: * 1
+-Cluster  * 1
+-TaskDefinition * 1
 -Service: *
--ExecutionRole: * (check)
--TaskRole: * (check)
--LogGroup: *
--ContainerSecurityGroup: *
+-ExecutionRole: * (check) 1
+-TaskRole: * (check) 1
+-LogGroup: * 1
+-ContainerSecurityGroup: * 1
 -AutoScalingRole 
 -DNSRecord
 -AutoScalingTarget:

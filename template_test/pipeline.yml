@@ -176,19 +176,9 @@ Resources:
               - Resource: "*"
                 Effect: Allow
                 Action:
-                  - ecs:DescribeServices
-                  - ecs:DescribeTaskDefinition
-                  - ecs:DescribeTasks
-                  - ecs:ListTasks
-                  - ecs:RegisterTaskDefinition
-                  - ecs:UpdateService   
-                  - ecr:GetDownloadUrlForLayer
-                  - ecr:BatchGetImage
-                  - ecr:BatchCheckLayerAvailability
-                  - ecr:PutImage
-                  - ecr:InitiateLayerUpload
-                  - ecr:UploadLayerPart
-                  - ecr:CompleteLayerUpload                
+                  - 'ecs:*'
+                  - 'ecr:*'
+         
   CodeBuildRole:
     Type: AWS::IAM::Role
     Properties:
