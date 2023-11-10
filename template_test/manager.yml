@@ -67,33 +67,33 @@ Metadata:
           - SubnetA
           - SubnetB
 Resources:
-  ALB_TG_ECS: 
+  ALBTGECS: 
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://s3.amazonaws.com/${TemplateBucket}/templates/test-alb-tg-ecs.yml"   
+      TemplateURL: "https://pipeline-manager.s3.us-east-2.amazonaws.com/templates/test-alb-tg-ecs.yml"
       Parameters:
         VpcId: !Ref VpcId
         SubnetA: !Ref SubnetA
         SubnetB: !Ref SubnetB
-        Image: !GetAtt CodePipeline_ECR.Outputs.ECRImageUri
-
-  CodePipeline_ECR: 
+        Image: "223320623045.dkr.ecr.us-east-2.amazonaws.com/demo-cfn:latest"
+    DependsOn: CodePipelineECR
+  CodePipelineECR: 
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://s3.amazonaws.com/${TemplateBucket}/templates/pipeline.yml"   
+      TemplateURL: "https://pipeline-manager.s3.us-east-2.amazonaws.com/templates/pipeline.yml"   
       Parameters: 
         GithubAuthToken: !Ref GithubAuthToken
         GithubAccount: !Ref GithubAccount
         GithubRepository: !Ref GithubRepository
         GithubBranch: !Ref GithubBranch
-        Cluster: !GetAtt ALB_TG_ECS.Outputs.ClusterName
-        Service: !GetAtt ALB_TG_ECS.Outputs.ServiceName
-
+        Cluster: "demo-ecs-cfn"
+        Service: "demo-ecs-cfn-service"
+    
 Outputs:
   WebApp:
     Description: Web app DNS from LB
-    Value: !GetAtt ALB_TG_ECS.Outputs.LoadBalancerDNS
+    Value: !GetAtt ALBTGECS.Outputs.LoadBalancerDNS
 
   PipelineUrl:
     Description: CodePipeline from AWS Console
-    Value: !GetAtt CodePipeline_ECR.Outputs.PipelineUrl
+    Value: !GetAtt CodePipelineECR.Outputs.PipelineUrl
